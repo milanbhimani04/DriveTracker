@@ -22,7 +22,6 @@
 - [⚙️ Installation](#-installation)
 - [🧑‍💻 Git & GitHub Deployment](#-git--github-deployment)
 - [📁 Folder Structure](#-folder-structure)
-- [📈 Future Improvements](#-future-improvements)
 - [🤝 Contributing](#-contributing)
 - [👨‍💻 Author](#-author)
 
@@ -139,15 +138,6 @@ DriveTracker/
 ├── README.md              # Project documentation
 ├── .gitignore             # Git ignore file (optional)
 ```
-
----
-
-## 📈 Future Improvements
-
-- [ ] Export data as PDF/CSV
-- [ ] Add login system (user-based tracking)
-- [ ] Enhance UI with customTkinter or PyQt
-- [ ] Mobile app version using Kivy
 
 ---
 
