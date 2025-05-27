@@ -48,3 +48,102 @@
 📷 Screenshot 1 - Main UI
 📷 Screenshot 2 - Add New Drive
 📷 Screenshot 3 - View Records
+
+🛠️ Tech Stack
+| Component     | Technology |
+| ------------- | ---------- |
+| Language      | Python 3.x |
+| GUI Framework | Tkinter    |
+| Database      | SQLite3    |
+| IDE Used      | PyCharm    |
+
+⚙️ Installation
+Step 1: Clone the Repository
+bash
+Copy
+Edit
+git clone https://github.com/milanbhimani04/DriveTracker.git
+cd DriveTracker
+Step 2: Set up Virtual Environment (Optional but Recommended)
+bash
+Copy
+Edit
+# Create virtual environment
+python -m venv venv
+
+# Activate it
+# On Windows:
+venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
+Step 3: Install Requirements (if any)
+This project doesn't use external libraries for now, but for future updates, use:
+
+bash
+Copy
+Edit
+pip install -r requirements.txt
+Step 4: Run the Application
+bash
+Copy
+Edit
+python drive_tracker.py
+🧑‍💻 Git & GitHub Deployment
+Here’s how you can upload your PyCharm project to GitHub:
+
+✅ Initialize Git (if not already)
+bash
+Copy
+Edit
+git init
+✅ Add your files
+bash
+Copy
+Edit
+git add .
+✅ Commit your changes
+bash
+Copy
+Edit
+git commit -m "Initial commit"
+✅ Connect to GitHub repo
+bash
+Copy
+Edit
+git remote add origin https://github.com/milanbhimani04/DriveTracker.git
+✅ Push your code
+bash
+Copy
+Edit
+git branch -M master
+git push -u origin master
+📁 Folder Structure
+bash
+Copy
+Edit
+DriveTracker/
+├── drive_tracker.py       # Main GUI application
+├── database.db            # SQLite3 database (auto-created on first run)
+├── README.md              # Project documentation
+├── .gitignore             # Git ignore file (optional)
+📈 Future Improvements
+ Export data as PDF/CSV
+
+ Add login system (user-based tracking)
+
+ Enhance UI with customTkinter or PyQt
+
+ Mobile app version using Kivy
+
+🤝 Contributing
+Contributions are welcome!
+If you find any issues or want to enhance this project:
+
+Fork the repo 🍴
+
+Create a new branch 🛠️
+
+Commit your changes 💾
+
+Push and submit a PR 🚀
+
