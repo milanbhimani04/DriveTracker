@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>DriveTracker</title>
+    <!-- base:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <link rel="stylesheet" href="../../static/adminResources/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/dropify.min.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/style.css">
+    <!-- endinject -->
+    <link rel="shortcut icon" href="../../static/adminResources/image/favicon.ico"/>
+
+
+    <script type="text/javascript">
+        function loadCrossroad() {
+            var area_id = document.getElementById("area_id");
+            var crossroad_id = document.getElementById("crossroad_id");
+            crossroad_id.innerHTML = "";
+            crossroad_id.innerHTML = '<option selected disabled> Select Crossroad </option>';
+
+            var ajax = new XMLHttpRequest();
+            ajax.onreadystatechange = function () {
+                if (ajax.readyState === 4) {
+                    var jsn = JSON.parse(ajax.responseText);
+
+                    for (var i = 0; i < jsn.length; i++) {
+                        var opt = document.createElement("option");
+                        opt.value = jsn[i].crossroad_id;
+                        opt.text = jsn[i].crossroad_name;
+                        crossroad_id.options.add(opt);
+                    }
+                }
+            };
+            ajax.open("GET", "/admin/load_ajax_crossroad?area_id=" + area_id.value, true);
+            ajax.send();
+
+        }
+
+        function loadCamera() {
+            var crossroad_id = document.getElementById("crossroad_id").value;
+            var camera_id = document.getElementById("camera_id");
+            camera_id.innerHTML = "";
+            camera_id.innerHTML = '<option selected disabled> Select Camera </option>';
+
+            var ajax = new XMLHttpRequest();
+            ajax.onreadystatechange = function () {
+                if (ajax.readyState === 4 && ajax.status === 200) {
+                    var jsn = JSON.parse(ajax.responseText);
+                    for (var i = 0; i < jsn.length; i++) {
+                        var opt = document.createElement("option");
+                        opt.value = jsn[i].camera_id;
+                        opt.text = jsn[i].camera_name;
+                        camera_id.options.add(opt);
+                    }
+                }
+            };
+            ajax.open("GET", "/admin/load_ajax_camera?crossroad_id=" + crossroad_id, true);
+            ajax.send();
+        }
+    </script>
+
+</head>
+
+<body>
+
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+
+
+    {% include 'admin/header.html' %}
+
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+
+        <!-- partial:partials/_sidebar.html -->
+
+        {% include 'admin/menu.html' %}
+
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="card">
+                    <div class="card-header bg-gradient-custom d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 text-white">
+                            Video Details
+                        </h4>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#addVideo" data-whatever="@mdo">
+                            Add Video
+                        </button>
+
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table id="order-listing" class="table">
+                                        <thead>
+                                        <tr>
+                                            <th class="col-3">Video</th>
+                                            <th class="col-2">Info</th>
+                                            <th class="col-3">Result Status</th>
+                                            <th class="col-2">Result</th>
+                                            <th class="col-2">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for row in video_vo_list %}
+                                            <tr>
+                                                <th>
+                                                    <video src="{{ row[3].video_path }}{{ row[3].video_name }}" alt="{{ row[3].video_name }}" height="80px" width="80px">
+                                                    </video>
+                                                </th>
+                                                <td>
+{#                                                                                                        <a href="/admin/video_info?video_id={{ row[3]['video_id'] }}" data-toggle="modal" data-target="#showVideoInfo" data-whatever="@mdo" >#}
+{##}
+{# <i class="mdi mdi-information lead outline-primary"></i>#}
+{#                                                                                                            CLICK#}
+{#                                                                                                        </a>#}
+                                                    <input type="hidden" value="{{ row[3].video_id }}" id="video_id" name="video_id">
+                                                    <button onclick="loadInfoData()" data-toggle="modal" data-target="#showVideoInfo" data-whatever="@mdo">click</button>
+
+
+                                                </td>
+                                                <td>
+                                                    hello
+                                                </td>
+                                                <td>
+                                                    <a href="#" data-toggle="modal" data-target="#showResult" data-whatever="@mdo">
+                                                        <i class="mdi mdi-check-circle lead"></i>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <a href="/admin/delete_video?video_id={{ row[3]['video_id'] }}">
+                                                        <i class="mdi mdi-delete lead text-danger mr-3"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- container ends -->
+                </div>
+            </div>
+            <input type="text" id="video_id" placeholder="Enter Video ID">
+            <button onclick="loadInfoData()">Get Video Info</button>
+
+            <script>
+                function loadInfoData() {
+                    var video_id = document.getElementById("video_id").value;
+
+                    if (!video_id) {
+                        alert("Please enter a Video ID.");
+                        return;
+                    }
+
+                    var ajax = new XMLHttpRequest();
+                    ajax.onreadystatechange = function () {
+                        if (ajax.readyState === 4 && ajax.status === 200) {
+                            try {
+                                var jsn = JSON.parse(ajax.responseText);
+                                prompt("Video Info:", JSON.stringify(jsn, null, 2));
+                            } catch (e) {
+                                alert("Error parsing response: " + e.message);
+                            }
+                        }
+                    };
+
+                    ajax.open("GET", "/admin/video_info?video_id=" + encodeURIComponent(video_id), true);
+                    ajax.send();
+                }
+            </script>
+
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+            {% include 'admin/footer.html' %}
+
+            <!-- partial -->
+        </div>
+
+
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+
+    {##############################################################}
+    {####################### Add Video Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade bd-example-modal-lg" id="addVideo" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Add Video</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="cmxform" id="videoForm" method="post" action="/admin/insert_video" enctype="multipart/form-data">
+                        <fieldset>
+                            <div class="row">
+                                <div class="form-group col-4">
+                                    <label for="area_id">Select Area</label>
+                                    <select class="form-control" id="area_id" name="area_id" onchange="loadCrossroad()">
+                                        <option selected disabled value="0">Select Area</option>
+
+                                        {% for area in area_data %}
+                                            <option value="{{ area['area_id'] }}">{{ area['area_name'] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-4">
+                                    <label for="crossroad_id">Select CrossRoad</label>
+                                    <select class="form-control" id="crossroad_id" name="crossroad_id" onchange="loadCamera()">
+                                    </select>
+                                </div>
+
+                                <div class="from-group col-4">
+                                    <label for="camera_id">Select Camera</label>
+                                    <select class="form-control" id="camera_id" name="camera_id">
+                                    </select>
+                                </div>
+                                {#                                <div class="form-group col-12">#}
+                                {#                                    <label>File upload</label>#}
+                                {#                                    <input type="file" name="video_name" class="file-upload-default" accept="image/*">#}
+                                {#                                    <div class="input-group col-xs-12">#}
+                                {#                                        <input id="uploadForm" type="text" class="form-control file-upload-info" placeholder="Upload Video">#}
+                                {#                                        <span class="input-group-append">#}
+                                {#                                            <button class="file-upload-browse btn btn-sm btn-primary" type="button">#}
+                                {#                                                Upload#}
+                                {#                                            </button>#}
+                                {#                                        </span>#}
+                                {#                                    </div>#}
+                                {#                                </div>#}
+                                <div class="form-group col-12 ">
+                                    <label>File upload</label>
+                                    <div class=" dropify-wrapper">
+                                        <div class="dropify-message">
+                                            <span class="file-icon"></span>
+                                            <p>
+                                                Drag and drop a file here or click
+                                            </p>
+                                            <p class="dropify-error">
+                                                Ooops, something wrong appended.
+                                            </p>
+                                        </div>
+                                        <div class="dropify-loader"></div>
+                                        <div class="dropify-errors-container">
+                                            <ul></ul>
+                                        </div>
+                                        <input type="file" name="video_name" accept="image/*" class="dropify">
+                                        <button type="button" class="dropify-clear">Remove</button>
+                                        <div class="dropify-preview"><span class="dropify-render"></span>
+                                            <div class="dropify-infos">
+                                                <div class="dropify-infos-inner">
+                                                    <p class="dropify-filename">
+                                                        <span class="file-icon"></span>
+                                                        <span class="dropify-filename-inner"></span>
+                                                    </p>
+                                                    <p class="dropify-infos-message">
+                                                        Drag and drop or click to replace
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <input class="btn btn-primary" onclick="submitForm()" type="submit" value="Add">
+                    <button type="button" class="btn btn-light" onclick="resetForm()" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {##############################################################}
+    {####################### VideoInfo Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade bd-example-modal-lg" id="showVideoInfo" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Info Show</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="col-3">Video</th>
+                                    <th>Video Details</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for info in video_info_list %}
+                                    <tr>
+                                        <th>
+                                            <img src="{{ info.video_path }}{{ info.video_name }}" alt="" height="80px" width="80px">
+                                        </th>
+                                        <td>
+                                            <label> Area Name :</label>
+                                            {{ info['area_name'] }}
+                                            <br>
+                                            <label> Crossroad Name :</label>
+                                            {{ info['crossroad_name'] }}
+                                            <br>
+                                            <label> Camera Name :</label>
+                                            {{ info['camera_name'] }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {#                    <script>#}
+                    {#                        $(document).ready(function () {#}
+                    {#                            $('#getVideoInfoButton').click(function () {#}
+                    {#                                // Get the video_id from the button's data attribute#}
+                    {#                                var video_id = $(this).data('video_id');#}
+                    {##}
+                    {#                                // Make the AJAX request#}
+                    {#                                $.ajax({#}
+                    {#                                    url: '/admin/video_info',  // The route on your Flask server#}
+                    {#                                    type: 'GET',  // You can use 'POST' if you prefer#}
+                    {#                                    data: {#}
+                    {#                                        video_id: video_id  // Send the video_id#}
+                    {#                                    },#}
+                    {#                                    success: function (response) {#}
+                    {#                                        // Handle the success response#}
+                    {#                                        console.log('Video Info:', response);#}
+                    {#                                        // Do something with the response (e.g., display it in the UI)#}
+                    {#                                        $('#videoInfo').html(response);#}
+                    {#                                    },#}
+                    {#                                    error: function (xhr, status, error) {#}
+                    {#                                        console.error('AJAX error:', error);#}
+                    {#                                    }#}
+                    {#                                });#}
+                    {#                            });#}
+                    {#                        });#}
+                    {#                    </script>#}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" onclick="" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {##############################################################}
+    {####################### Result Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade bd-example-modal-lg" id="showResult" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Result Show</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" onclick="" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- container-scroller -->
+<!-- base:js -->
+<script>
+    function submitForm() {
+        document.getElementById("videoForm").submit();
+    }
+
+    function resetForm() {
+        $('#area_id').val("0")
+        $('#crossroad_id').val("0")
+        $('#camera_id').val("0")
+        $('#uploadForm').val("")
+    }
+
+    $.ajax({
+        type: 'get',
+        url: 'admin/video_info',
+        dataType: 'json',
+        data: {id: id} // this line
+    });
+</script>
+
+<script src="../../static/adminResources/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- inject:js -->
+<script src="../../static/adminResources/js/off-canvas.js"></script>
+<script src="../../static/adminResources/js/hoverable-collapse.js"></script>
+<script src="../../static/adminResources/js/template.js"></script>
+<script src="../../static/adminResources/js/settings.js"></script>
+<script src="../../static/adminResources/js/todolist.js"></script>
+<!-- endinject -->
+<!-- plugin js for this page -->
+<script src="../../static/adminResources/js/jquery.validate.min.js"></script>
+<script src="../../static/adminResources/js/bootstrap-maxlength.min.js"></script>
+<script src="../../static/adminResources/js/jquery.dataTables.js"></script>
+<script src="../../static/adminResources/js/dataTables.bootstrap4.js"></script>
+<script src="../../static/adminResources/js/dropify.min.js"></script>
+<script src="../../static/adminResources/js/jquery.uploadfile.min.js"></script>
+<!-- End plugin js for this page -->
+<!-- Custom js for this page-->
+<script src="../../static/adminResources/js/data-table.js"></script>
+<script src="../../static/adminResources/js/dropify.js"></script>
+<script src="../../static/adminResources/js/file-upload.js"></script>
+<script src="../../static/adminResources/js/form-validation.js"></script>
+<script src="../../static/adminResources/js/bt-maxLength.js"></script>
+<!-- End custom js for this page-->
+</body>
+
+</html>

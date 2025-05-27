@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>DriveTracker</title>
+    <!-- base:css -->
+    <link rel="stylesheet"
+          href="../../static/adminResources/css/materialdesignicons.min.css">
+    <link rel="stylesheet"
+          href="../../static/adminResources/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/style.css">
+    <!-- endinject -->
+    <link rel="shortcut icon"
+          href="../../static/adminResources/image/favicon.ico"/>
+    <script type="text/javascript">
+        function loadCamera() {
+            var area_id = document.getElementById("area_id");
+            var crossroad_id = document.getElementById("crossroad_id");
+            crossroad_id.innerHTML = "";
+
+
+            var ajax = new XMLHttpRequest();
+            ajax.onreadystatechange = function () {
+                if (ajax.readyState === 4) {
+                    var jsn = JSON.parse(ajax.responseText);
+
+                    for (var i = 0; i < jsn.length; i++) {
+                        var opt = document.createElement("option");
+                        opt.value = jsn[i].crossroad_id;
+                        opt.text = jsn[i].crossroad_name;
+                        crossroad_id.options.add(opt);
+                    }
+                }
+            };
+            ajax.open("GET", "/admin/load_ajax_crossroad?area_id=" + area_id.value, true);
+            ajax.send();
+        }
+    </script>
+</head>
+
+
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+
+
+    {% include 'admin/header.html' %}
+
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+
+        <!-- partial:partials/_sidebar.html -->
+
+        {% include 'admin/menu.html' %}
+
+
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row grid-margin">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header bg-gradient-custom">
+                                <h4 class="mb-0 text-white">
+                                    Edit Camera
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                {% for i in camera_vo_list %}
+                                    <form class="cmxform" id="commentForm" method="post" action="/admin/update_camera">
+                                        <input type="hidden" name="camera_id" value="{{ i.camera_id }}">
+                                        <fieldset>
+                                            <div class="row">
+                                                <div class="form-group  col-6">
+                                                    <label for="area_id">
+                                                        Select Area
+                                                    </label>
+                                                    <select class="form-control" id="area_id" name="area_id" required onchange="loadCamera()">
+
+
+                                                        {% for area in area_vo_list %}
+                                                            <option value="{{ area.area_id }}" {% if i.camera_area_id == area.area_id %}selected{% endif %}>{{ area.area_name }}</option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-6">
+                                                    <label for="crossroad_id">
+                                                        Select Crossroad
+                                                    </label>
+                                                    <select class="form-control" id="crossroad_id" name="crossroad_id" required>
+                                                        {% for k in crossroad_vo_list %}
+                                                            <option value="{{ k.crossroad_id }}" {% if i.camera_crossroad_id == k.crossroad_id %}selected{% endif %}>{{ k.crossroad_name }}</option>
+                                                        {% endfor %}
+
+
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-12">
+                                                    <label for="cameraname">
+                                                        Camera Name
+                                                    </label>
+                                                    <input id="cameraname" class="form-control" name="camera_name" minlength="2" type="text" value="{{ i.camera_name }}">
+                                                </div>
+
+                                                <div class="form-group col-12">
+                                                    <label for="rtsplink">
+                                                        RTSP Link
+                                                    </label>
+                                                    <input id="rtsplink" class="form-control" name="RTSP_link" minlength="2" type="text" value= {{ i.RTSP_link }}>
+                                                </div>
+                                                <div class="form-group col-12 row">
+                                                    <label class="col-sm-3 col-form-label" for="status">
+                                                        Camera Status
+                                                    </label>
+                                                    {% if i.camera_status == 'Active' %}
+
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input type="radio" class="form-check-input" name="status" id="cameraRadios1" checked value="Active">
+                                                                    Active
+                                                                    <i class="input-helper"></i></label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input type="radio" class="form-check-input" name="status" id="cameraRadios2" value=Deactivate>
+                                                                    Deactivate
+                                                                    <i class="input-helper"></i></label>
+
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if i.camera_status == 'Deactivate' %}
+
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input type="radio" class="form-check-input" name="status" id="cameraRadios1" value="Active">
+                                                                    Active
+                                                                    <i class="input-helper"></i></label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input type="radio" class="form-check-input" name="status" id="cameraRadios2" value="Deactivate" checked>
+                                                                        Deactivate
+                                                                    <i class="input-helper"></i>
+                                                                </label>
+
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                </DIV>
+
+
+                                                <input class="btn btn-primary" type="submit" value="Add">
+                                            </div>
+                                        </fieldset>
+                                    </form>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+
+            {% include 'admin/footer.html' %}
+
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+<!-- base:js -->
+<script src="../../static/adminResources/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- inject:js -->
+<script src="../../static/adminResources/js/off-canvas.js"></script>
+<script src="../../static/adminResources/js/hoverable-collapse.js"></script>
+<script src="../../static/adminResources/js/template.js"></script>
+<script src="../../static/adminResources/js/settings.js"></script>
+<script src="../../static/adminResources/js/todolist.js"></script>
+<!-- endinject -->
+<!-- plugin js for this page -->
+<script src="../../static/adminResources/js/jquery.validate.min.js"></script>
+<script src="../../static/adminResources/js/bootstrap-maxlength.min.js"></script>
+<!-- End plugin js for this page -->
+<!-- Custom js for this page-->
+<script src="../../static/adminResources/js/form-validation.js"></script>
+<script src="../../static/adminResources/js/bt-maxLength.js"></script>
+<!-- End custom js for this page-->
+</body>
+
+</html>

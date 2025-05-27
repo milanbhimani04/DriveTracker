@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>DriveTracker</title>
+    <!-- base:css -->
+    <link rel="stylesheet"
+          href="../../static/adminResources/css/materialdesignicons.min.css">
+    <link rel="stylesheet"
+          href="../../static/adminResources/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/style.css">
+    <!-- endinject -->
+    <link rel="shortcut icon"
+          href="../../static/adminResources/image/favicon.ico"/>
+</head>
+
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+
+
+    {% include 'admin/header.html' %}
+
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+
+        <!-- partial:partials/_sidebar.html -->
+
+        {% include 'admin/menu.html' %}
+
+
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row grid-margin">
+                    <div class="col-lg-12">
+                        <div class="card">
+                        <div class="card-header bg-gradient-custom">
+                                <h4 class="mb-0 text-white">
+                                    Add CrossRoad
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <form class="cmxform" id="commentForm" method="post" action="/admin/update_crossroad">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label for="areaselect">
+                                                Select Area
+                                            </label>
+                                            <select class="form-control" id="areaselect" name="crossroad_area_id">
+                                                <option value="none">
+                                                    Select Area
+                                                </option>
+                                                {% for data in area_vo_list %}
+                                                    {% if crossroad_vo_list[0]['crossroad_area_id'] == data['area_id'] %}
+                                                        <option selected="selected" value="{{ data['area_id'] }}">{{ data['area_name'] }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                            </select>
+                                        </div>
+                                        <input type="hidden" name="crossroad_id" value="{{ crossroad_vo_list[0]['crossroad_id'] }}">
+                                        <div class="form-group">
+                                            <label for="crossroadname">
+                                                CrossRoad Name
+                                            </label>
+                                            <input id="crossroadname" class="form-control" name="crossroad_name" value="{{ crossroad_vo_list[0]['crossroad_name'] }}" minlength="2" type="text">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="crossroadcomment">
+                                                CrossRoad Description
+                                            </label>
+                                            <textarea id="crossroadcomment" class="form-control" name="crossroad_description">{{ crossroad_vo_list[0]['crossroad_description']}}</textarea>
+                                        </div>
+
+                                        <input class="btn btn-primary" type="submit" value="Update">
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+
+            {% include 'admin/footer.html' %}
+
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+<!-- base:js -->
+<script src="../../static/adminResources/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- inject:js -->
+<script src="../../static/adminResources/js/off-canvas.js"></script>
+<script src="../../static/adminResources/js/hoverable-collapse.js"></script>
+<script src="../../static/adminResources/js/template.js"></script>
+<script src="../../static/adminResources/js/settings.js"></script>
+<script src="../../static/adminResources/js/todolist.js"></script>
+<!-- endinject -->
+<!-- plugin js for this page -->
+<script src="../../static/adminResources/js/jquery.validate.min.js"></script>
+<script src="../../static/adminResources/js/bootstrap-maxlength.min.js"></script>
+<!-- End plugin js for this page -->
+<!-- Custom js for this page-->
+<script src="../../static/adminResources/js/form-validation.js"></script>
+<script src="../../static/adminResources/js/bt-maxLength.js"></script>
+<!-- End custom js for this page-->
+</body>
+
+</html>
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>EDIT-SUB-CATEGORY</title>#}
+{#</head>#}
+{#<body>#}
+{#<center>#}
+{#<form action="/admin/update_crossroad" method="post">#}
+{#    {% for crossroad_vo_list in crossroad_vo_list %}#}
+{#        <label for="area_id">area:</label>#}
+{#        <select id="area_id" name="area_id">#}
+{#            {% for area_vo_list in area_vo_list %}#}
+{#                <option value="{{ area_vo_list['area_id'] }}" {% if#}
+{#                area_vo_list['area_id'] == crossroad_vo_list['crossroad_area_id'] %}#}
+{#                        selected {% endif %}>#}
+{#                    {{ area_vo_list['area_name'] }}#}
+{#                </option>#}
+{#            {% endfor %}#}
+{#        </select>#}
+{#        <br><br>#}
+{#        <input type="hidden" name="crossroad_id"#}
+{#               value="{{ crossroad_vo_list['crossroad_id'] }}">#}
+{#        <label for="crossroad_name">Crossroad name:</label>#}
+{#        <input id="crossroad_name" name="crossroad_name"#}
+{#               value="{{ crossroad_vo_list['crossroad_name'] }}" required>#}
+{#        <br><br>#}
+{##}
+{#        <label for="crossroad_description">crossroad Description:</label>#}
+{#        <textarea id="crossroad_description" name="crossroad_description"#}
+{#                  required>#}
+{#            {{ crossroad_vo_list['crossroad_description'] }}#}
+{#        </textarea>#}
+{#        <br><br>#}
+{##}
+{#        <button type="submit">Update</button>#}
+{#    {% endfor %}#}
+{#</form>#}
+{#</center>#}
+{##}
+{#</body>#}
+{#</html>#}

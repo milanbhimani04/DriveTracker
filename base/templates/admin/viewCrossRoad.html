@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>DriveTracker</title>
+    <!-- base:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <link rel="stylesheet" href="../../static/adminResources/css/jquery.toast.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/dataTables.bootstrap4.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/style.css">
+    <!-- endinject -->
+    <link rel="shortcut icon" href="../../static/adminResources/image/favicon.ico"/>
+</head>
+
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+
+
+    {% include 'admin/header.html' %}
+
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+
+        <!-- partial:partials/_sidebar.html -->
+
+        {% include 'admin/menu.html' %}
+
+
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="card">
+                    <div class="card-header bg-gradient-custom d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 text-white">
+                            CrossRoad Details
+                        </h4>
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-toggle="modal"
+                                data-target="#addCrossRoad"
+                                data-whatever="@mdo">
+                            Add CrossRoad
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table id="order-listing" class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>CrossRoad Name</th>
+                                            <th>Area Name</th>
+                                            <th>CrossRoad Description</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for row in crossroad_vo_list %}
+                                            <tr>
+                                                <td>{{ row[0]['crossroad_name'] }}</td>
+                                                <td>{{ row[1]['area_name'] }}</td>
+                                                <td>
+                                                    <p class="text-truncate"
+                                                       style="max-width: 380px; cursor: pointer"
+                                                       data-toggle="popover"
+                                                       data-trigger="hover"
+                                                       title="CrossRoad Description"
+                                                       data-content="{{ row[0]['crossroad_description'] }}"
+                                                       data-placement="left"
+                                                       data-custom-class="popover-info">
+                                                        {{ row[0]['crossroad_description'] }}
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <a href="#"
+                                                       onclick="loadCrossroadInfo('{{ row[0]['crossroad_id'] }}')"
+                                                       data-toggle="modal"
+                                                       data-target="#editCrossRoad">
+                                                        <i class="mdi mdi-pencil lead"
+                                                           style="max-width: 380px; cursor: pointer"
+                                                           data-toggle="tooltip"
+                                                           data-placement="left"
+                                                           title="Edit"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);"
+                                                       class="style=max-width: 380px; cursor: pointer"
+                                                       data-toggle="tooltip"
+                                                       data-placement="right"
+                                                       title="Delete"
+                                                       onclick="showSwal('warning-message-and-cancel', '{{ row[0]['crossroad_id'] }}')">
+                                                        <i class="mdi mdi-delete lead text-danger mr-3"></i>
+                                                    </a>
+
+                                                    {#                                                    <a href="/admin/delete_crossroad?crossroad_id={{ row[0]['crossroad_id'] }}"#}
+                                                    {#                                                       style="max-width: 400px; cursor: pointer"#}
+                                                    {#                                                       data-toggle="tooltip"#}
+                                                    {#                                                       data-placement="right"#}
+                                                    {#                                                       title=""#}
+                                                    {#                                                       data-original-title="Delete">#}
+                                                    {#                                                        <i class="mdi mdi-delete lead text-danger mr-3"></i>#}
+                                                    {#                                                    </a>#}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+
+            {% include 'admin/footer.html' %}
+
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+
+    {##############################################################}
+    {####################### Add Crossroad Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade" id="addCrossRoad" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form class="cmxform" id="addCrossroadForm" method="post" action="/admin/insert_crossroad">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Add CrossRoad</h5>
+                        <button type="button" onclick="resetForm()" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="areaselect">Select Area</label>
+                                <select class="form-control" id="areaselect" name="crossroad_area_id">
+                                    <option selected disabled value="0"> Select Area</option>
+                                    {% for i in area_vo_list %}
+
+                                        <option value="{{ i['area_id'] }}">{{ i['area_name'] }}</option>
+
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="crossroadname">CrossRoad Name</label>
+                                <input type="text" id="crossroadname" class="form-control" name="crossroad_name" minlength="2">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="crossroadcomment">CrossRoad Description</label>
+                                <textarea id="crossroadcomment" class="form-control" name="crossroad_description"></textarea>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        {#                    <input class="btn btn-primary" onclick="submitForm()" type="submit" value="Add">#}
+                        <input class="btn btn-primary" type="submit" value="Add">
+                        <button type="button" class="btn btn-light" onclick="resetForm()" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {##############################################################}
+
+    {##############################################################}
+    {####################### Edit Crossroad Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade" id="editCrossRoad" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="crossroadForm" method="post" action="/admin/update_crossroad">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Edit Crossroad</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="crossroad_id" name="crossroad_id"> <!-- Hidden input for ID -->
+
+                        <div class="mb-3">
+                            <label for="area_name" class="form-label">Select Area</label>
+                            <select class="form-control" id="area_name" name="crossroad_area_id">
+                                <option value="">Select Area</option>
+                                {% for area in area_vo_list %}
+                                    <option value="{{ area['area_id'] }}">{{ area['area_name'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="crossroad_name" class="form-label">Crossroad Name</label>
+                            <input type="text" class="form-control" id="crossroad_name" name="crossroad_name">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="crossroad_description" class="form-label">Crossroad Description</label>
+                            <textarea class="form-control" id="crossroad_description" name="crossroad_description"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        {#                    <input class="btn btn-primary" onclick="submitForm()" type="submit" value="Add">#}
+                        <button type="submit" class="btn btn-primary">Update</button>
+
+                        <button type="button" class="btn btn-light" onclick="resetForm()" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {##############################################################}
+    <!-- container-scroller -->
+
+
+</div>
+<!-- base:js -->
+<script src="../../static/adminResources/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- inject:js -->
+<script src="../../static/adminResources/js/off-canvas.js"></script>
+<script src="../../static/adminResources/js/hoverable-collapse.js"></script>
+<script src="../../static/adminResources/js/template.js"></script>
+<script src="../../static/adminResources/js/settings.js"></script>
+<script src="../../static/adminResources/js/todolist.js"></script>
+
+<!-- endinject -->
+<!-- plugin js for this page -->
+<script src="../../static/adminResources/js/sweetalert.min.js"></script>
+<script src="../../static/adminResources/js/jquery.dataTables.js"></script>
+<script src="../../static/adminResources/js/jquery.validate.min.js"></script>
+<script src="../../static/adminResources/js/dataTables.bootstrap4.js"></script>
+<script src="../../static/adminResources/js/jquery.toast.min.js"></script>
+<!-- End plugin js for this page -->
+<script src="../../static/adminResources/js/tooltips.js"></script>
+<script src="../../static/adminResources/js/popover.js"></script>
+<!-- Custom js for this page-->
+<script src="../../static/adminResources/js/data-table.js"></script>
+<script src="../../static/adminResources/js/alerts.js"></script>
+<script src="../../static/adminResources/js/form-validation.js"></script>
+
+<script>
+
+    function showSwal(type, crossroad_id) {
+        if (type === 'warning-message-and-cancel') {
+            swal({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: "Cancel",
+                        value: null,
+                        visible: true,
+                        className: "btn btn-danger",
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "OK",
+                        value: true,
+                        visible: true,
+                        className: "btn btn-primary",
+                        closeModal: true
+                    }
+                }
+            }).then((result) => {
+                if (result) {
+                    window.location.href = "/admin/delete_crossroad?crossroad_id=" + crossroad_id;
+                }
+            });
+        }
+    }
+
+    {#function showSuccessToastDelete() {#}
+    {#    $.toast({#}
+    {#        heading: 'Success',#}
+    {#        text: 'The crossroad has been successfully deleted!',#}
+    {#        showHideTransition: 'slide',#}
+    {#        icon: 'success',#}
+    {#        loaderBg: '#f96868',#}
+    {#        position: 'top-right'#}
+    {#    });#}
+    {# }#}
+
+
+    $(document).ready(function () {
+        $('#addCrossroadForm').validate({
+            rules: {
+                crossroad_area_id: {
+                    required: true
+                },
+                crossroad_name: {
+                    required: true
+                },
+                crossroad_description: {
+                    required: true
+                }
+            },
+            messages: {
+                crossroad_area_id: {
+                    required: "Please select an area",
+                },
+                crossroad_name: {
+                    required: "Please, Enter Crossroad Name",
+                },
+                crossroad_description: {
+                    required: "Please enter a description"
+                }
+            }
+        });
+    });
+
+    function resetForm() {
+        $("#addCrossroadForm").validate().resetForm();
+        $("#addCrossroadForm").trigger("reset");
+    }
+
+
+    function loadCrossroadInfo(crossroad_id) {
+        console.log("Fetching data for crossroad_id:", crossroad_id); // Debugging
+
+        let ajax = new XMLHttpRequest();
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState === 4) {
+                console.log("Request completed with status:", ajax.status);
+
+                if (ajax.status === 200) {
+                    try {
+                        console.log("Raw response:", ajax.responseText);
+                        let responseData = JSON.parse(ajax.responseText);
+                        console.log("Parsed response:", responseData);
+
+                        if (responseData.error) {
+                            alert("Error: " + responseData.error);
+                            return;
+                        }
+                        document.getElementById("crossroad_id").value = responseData.crossroad_id;
+                        document.getElementById("crossroad_name").value = responseData.crossroad_name;
+                        document.getElementById("crossroad_description").value = responseData.crossroad_description;
+                        document.getElementById("area_name").value = responseData.crossroad_area_id;
+
+                        console.log("Data updated in modal");
+                    } catch (e) {
+                        console.error("Error parsing response:", e.message);
+                        alert("Error parsing response: " + e.message);
+                    }
+                } else {
+                    console.error("Failed request. Server responded with:", ajax.status);
+                    alert("Failed to load data. Server responded with: " + ajax.status);
+                }
+            }
+        };
+
+        ajax.open("GET", "/admin/get_crossroad_info?crossroad_id=" + encodeURIComponent(crossroad_id), true);
+        ajax.send();
+    }
+</script>
+
+</body>
+
+</html>

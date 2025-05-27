@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>DriveTracker</title>
+    <!-- base:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <link rel="stylesheet" href="../../static/adminResources/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/dropify.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/jsgrid.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/jsgrid-theme.min.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/style.css">
+    <!-- endinject -->
+    <link rel="shortcut icon" href="../../static/adminResources/image/favicon.ico"/>
+
+</head>
+
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+
+
+    {% include 'admin/header.html' %}
+
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+
+        <!-- partial:partials/_sidebar.html -->
+
+        {% include 'admin/menu.html' %}
+
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="">
+                <div class="content-wrapper">
+                    <div class="card">
+                        <div class="card-header bg-gradient-custom d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 text-white">
+                                Video Details
+                            </h4>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#addVideo" data-whatever="@mdo">
+                                Add Video
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive" style="max-height: 527px; overflow-y: auto;">
+                                <table id="order-listing" class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Video</th>
+                                        <th>Info</th>
+                                        <th>Result Status</th>
+                                        <th>Report</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    {#                                    <div class="card">#}
+                                    {#                                        <div class="card-body" style="max-height: 400px; overflow-y: auto;">#}
+                                    <tbody>
+                                    {% for row in video_vo_list %}
+                                        <tr>
+                                            <td>
+                                                <video style="border-radius: 7px;height: 120px;cursor: pointer"
+                                                       onclick="loadInfoData({{ row[3].video_id }})"
+                                                       data-target="#showVideoInfo"
+                                                       data-whatever="@mdo"
+                                                       data-toggle="modal"
+                                                       src="{{ row[3].video_path }}{{ row[3].video_name }}" type="video/mp4" muted>
+                                                </video>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-outline-primary btn-fw"
+                                                        onclick="loadInfoData({{ row[3].video_id }})"
+                                                        data-target="#showVideoInfo" data-whatever="@mdo" data-toggle="modal">
+                                                    <i class="mdi mdi-information-variant icon-md lead"
+                                                       data-toggle="tooltip"
+                                                       data-placement="left"
+                                                       title=""
+                                                       data-original-title="View Info">
+                                                    </i>
+                                                    Show Info
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-success text-center">Complete</span>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-outline-primary btn-fw" onclick="loadResultInfoData({{ row[3].video_id }})">
+                                                    <i class="mdi mdi-file-chart icon-md lead"
+                                                       style="max-width: 380px; cursor: pointer"
+                                                       data-toggle="tooltip"
+                                                       data-placement="left"
+                                                       title=""
+                                                       data-original-title="View Report">
+                                                    </i>
+                                                    View Report
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0);"
+                                                   class="style=max-width: 380px; cursor: pointer"
+                                                   data-toggle="tooltip"
+                                                   data-placement="right"
+                                                   title="Delete"
+                                                   onclick="showSwal('warning-message-and-cancel', '{{ row[3]['video_id'] }}')">
+                                                    <i class="mdi mdi-delete lead text-danger mr-3"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                    {#                                        </div>#}
+                                    {#                                    </div>#}
+                                </table>
+                            </div>
+                        </div>
+                        <!-- container ends -->
+                    </div>
+                </div>
+
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+            {% include 'admin/footer.html' %}
+
+            <!-- partial -->
+        </div>
+
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+
+    {##############################################################}
+    {####################### Add Video Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade bd-example-modal-lg" id="addVideo" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <form class="cmxform" id="addVideoForm" method="post" action="/admin/insert_video" enctype="multipart/form-data">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Add Video</h5>
+                        <button type="button" onclick="resetForm()" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <fieldset>
+                            <div class="row">
+                                <div class="form-group col-4">
+                                    <label for="area_id">Select Area</label>
+                                    <select class="form-control" id="area_id" name="area_id" onchange="loadCrossroad()">
+                                        <option selected disabled value="0">Select Area</option>
+
+                                        {% for area in area_data %}
+                                            <option value="{{ area['area_id'] }}">{{ area['area_name'] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-4">
+                                    <label for="crossroad_id">Select CrossRoad</label>
+                                    <select class="form-control" id="crossroad_id" name="crossroad_id" onchange="loadCamera()">
+                                    </select>
+                                </div>
+
+                                <div class="from-group col-4">
+                                    <label for="camera_id">Select Camera</label>
+                                    <select class="form-control" id="camera_id" name="camera_id">
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-12 grid-margin stretch-card">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <input id="uploadForm" type="file" name="video_name" class="dropify"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <input class="btn btn-primary" type="submit" value="Add">
+                        <button type="button" class="btn btn-light" onclick="resetForm()" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {##############################################################}
+    {####################### VideoInfo Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade bd-example-modal-lg" id="showVideoInfo" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">
+                        Input Details
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <video class="w-100" style="border-radius: 7px;" controls id="infoModalVideo" muted></video>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h5 class="mb-0 mt-2">
+                                        <i class="mdi mdi-map-marker-multiple "></i>
+                                        Area
+                                    </h5>
+                                    <p class="text-muted" id="infoModalArea"></p>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0 mt-2">
+                                        <i class="mdi mdi-road-variant menu-icon"></i>
+                                        CrossRoad
+                                    </h5>
+                                    <p class="text-muted" id="infoModalCrossroad"></p>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0 mt-2">
+                                        <i class="mdi mdi-cctv menu-icon"></i>
+                                        Camera
+                                    </h5>
+                                    <p class="text-muted" id="infoModalCamera"></p>
+                                </div>
+
+                                <div class="col-6">
+                                    <h5 class="mb-0 mt-2">
+                                        <i class="mdi mdi-play-circle"></i>
+                                        File Name
+                                    </h5>
+                                    <p class="text-muted" id="infoModalFileName"></p>
+                                </div>
+
+                                <div class="col-6">
+                                    <h5 class="mb-0 mt-2">
+                                        <i class="mdi mdi-timer"></i>
+                                        Length
+                                    </h5>
+                                    <p class="text-muted" id="infoModalVideoLength"></p>
+                                </div>
+
+                                <div class="col-6">
+                                    <h5 class="mb-0 mt-2">
+                                        <i class="mdi mdi-file-video"></i>
+                                        File Type
+                                    </h5>
+                                    <p class="text-muted" id="infoModalFileType"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-light" onclick="" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {##############################################################}
+
+    {##############################################################}
+    {####################### Classification  Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade bd-example-modal-lg" id="showVideoResult" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable x   modal-lg " role="document">
+            <div class="modal-content">
+                <div class="modal-header ">
+                    <h5 class="modal-title" id="ModalLabel">Result</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 col-xl-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <ul class="nav nav-pills nav-pills-primary" id="pills-tab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Detection</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile"
+                                               aria-selected="false">Original</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" id="pills-tabContent">
+                                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <video class="w-100" style="border-radius: 7px;" id="resultModalVideo" controls muted></video>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-counter"></i>
+                                                                        Total Vehicle :
+                                                                        <span class="text-muted" id="infoTotalCount">x</span>
+                                                                    </h5>
+                                                                    <p class="text-muted" id=""></p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-car"></i>
+                                                                        Car
+                                                                    </h5>
+                                                                    <p class="text-muted" id="infoCarCount"></p>
+                                                                </div>
+
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-bus"></i>
+                                                                        bus
+                                                                    </h5>
+                                                                    <p class="text-muted" id="infoBusCount"></p>
+                                                                </div>
+
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-motorbike"></i>
+                                                                        Motorcycle
+                                                                    </h5>
+                                                                    <p class="text-muted" id="infoMotorcycleCount"></p>
+                                                                </div>
+
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-truck"></i>
+                                                                        Truck
+                                                                    </h5>
+                                                                    <p class="text-muted" id="infoTruckCount"></p>
+                                                                </div>
+
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-bike"></i>
+                                                                        Bicycle
+                                                                    </h5>
+                                                                    <p class="text-muted" id="infoBicycleCount"></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <video class="w-100" style="border-radius: 7px;" id="resultModalOgVideo" controls muted></video>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-map-marker-multiple menu-icon"></i>
+                                                                        Area
+                                                                    </h5>
+                                                                    <p class="text-muted" id="resultModalArea"></p>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-road-variant menu-icon"></i>
+                                                                        CrossRoad
+                                                                    </h5>
+                                                                    <p class="text-muted" id="resultModalCrossroad"></p>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-cctv menu-icon"></i>
+                                                                        Camera
+                                                                    </h5>
+                                                                    <p class="text-muted" id="resultModalCamera"></p>
+                                                                </div>
+
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-play-circle"></i>
+                                                                        File Name
+                                                                    </h5>
+                                                                    <p class="text-muted" id="resultModalFileName"></p>
+                                                                </div>
+
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-timer"></i>
+                                                                        Length
+                                                                    </h5>
+                                                                    <p class="text-muted" id="resultModalVideoLength"></p>
+                                                                </div>
+
+                                                                <div class="col-6">
+                                                                    <h5 class="mb-0 mt-2">
+                                                                        <i class="mdi mdi-file-video"></i>
+                                                                        File Type
+                                                                    </h5>
+                                                                    <p class="text-muted" id="resultModalFileType"></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {#                <div class="modal-footer ">#}
+                {#                    <button type="button" class="btn btn-light" onclick="" data-dismiss="modal">Cancel</button>#}
+                {#                </div>#}
+            </div>
+        </div>
+    </div>
+
+    {##############################################################}
+
+
+</div>
+<!-- container-scroller -->
+<!-- base:js -->
+<script src="../../static/adminResources/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- inject:js -->
+<script src="../../static/adminResources/js/off-canvas.js"></script>
+<script src="../../static/adminResources/js/hoverable-collapse.js"></script>
+<script src="../../static/adminResources/js/template.js"></script>
+<script src="../../static/adminResources/js/settings.js"></script>
+<script src="../../static/adminResources/js/todolist.js"></script>
+<!-- endinject -->
+<!-- plugin js for this page -->
+<script src="../../static/adminResources/js/sweetalert.min.js"></script>
+<script src="../../static/adminResources/js/jquery.validate.min.js"></script>
+<script src="../../static/adminResources/js/bootstrap-maxlength.min.js"></script>
+<script src="../../static/adminResources/js/jquery.dataTables.js"></script>
+<script src="../../static/adminResources/js/dataTables.bootstrap4.js"></script>
+<script src="../../static/adminResources/js/dropify.min.js"></script>
+<script src="../../static/adminResources/js/jquery.uploadfile.min.js"></script>
+<script src="../../static/adminResources/js/jsgrid.min.js"></script>
+<script src="../../static/adminResources/js/jquery.toast.min.js"></script>
+<!-- End plugin js for this page -->
+<script src="../../static/adminResources/js/tooltips.js"></script>
+<!-- Custom js for this page-->
+<script src="../../static/adminResources/js/alerts.js"></script>
+<script src="../../static/adminResources/js/data-table.js"></script>
+<script src="../../static/adminResources/js/dropify.js"></script>
+<script src="../../static/adminResources/js/file-upload.js"></script>
+<script src="../../static/adminResources/js/bt-maxLength.js"></script>
+<script src="../../static/adminResources/js/tabs.js"></script>
+<script src="../../static/adminResources/js/form-validation.js"></script>
+
+<script type="text/javascript">
+
+    function showSwal(type, video_id) {
+        if (type === 'warning-message-and-cancel') {
+            swal({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: "Cancel",
+                        value: null,
+                        visible: true,
+                        className: "btn btn-danger",
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "OK",
+                        value: true,
+                        visible: true,
+                        className: "btn btn-primary",
+                        closeModal: true
+                    }
+                }
+            }).then((result) => {
+                if (result) {
+                    window.location.href = "/admin/delete_video?video_id=" + video_id;
+                }
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        $('#addVideoForm').validate({
+            rules: {
+                area_id: {
+                    required: true
+                },
+                crossroad_id: {
+                    required: true
+                },
+                camera_id: {
+                    required: true
+                },
+                video_name: {
+                    required: true
+                }
+                {#cameraRadios2: {#}
+                {#    required: true#}
+                {# }#}
+            },
+            messages: {
+                area_id: {
+                    required: "Please select an area",
+                },
+                crossroad_id: {
+                    required: "Please select crossroad",
+                },
+                camera_id: {
+                    required: "Please select an camera",
+                },
+                video_name: {
+                    required: "Please Drag and drop a file here or click"
+                },
+            }
+        })
+        ;
+    });
+
+    function resetForm() {
+        $("#addVideoForm").validate().resetForm();
+        {#$("#addVideoForm").trigger("reset");#}
+    }
+
+    function loadCrossroad() {
+        var area_id = document.getElementById("area_id").value;
+        var crossroadDropdown = document.getElementById("crossroad_id");
+
+        crossroadDropdown.innerHTML = '<option selected disabled>Select Crossroad</option>';
+
+        if (!area_id) {
+            return;
+        }
+
+        var ajax = new XMLHttpRequest();
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState === 4) {
+                if (ajax.status === 200) {
+                    try {
+                        var response = JSON.parse(ajax.responseText);
+
+                        if (response.length === 0) {
+                            var opt = document.createElement("option");
+                            opt.text = "No Crossroads Available";
+                            opt.disabled = true;
+                            crossroadDropdown.add(opt);
+                        } else {
+                            response.forEach(function (crossroad) {
+                                var opt = document.createElement("option");
+                                opt.value = crossroad.crossroad_id;
+                                opt.text = crossroad.crossroad_name;
+                                crossroadDropdown.add(opt);
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error parsing JSON response:", error);
+                    }
+                } else {
+                    console.error("Error fetching crossroads: HTTP", ajax.status);
+                }
+            }
+        };
+
+        ajax.open("GET", "/admin/get_crossroads_with_filter?area_id=" + area_id, true);
+        ajax.send();
+    }
+
+    // Function to load cameras based on selected crossroad
+    function loadCamera() {
+        var crossroad_id = document.getElementById("crossroad_id").value;
+        var cameraDropdown = document.getElementById("camera_id");
+
+        // Clear the dropdown and add the default option
+        cameraDropdown.innerHTML = '<option selected disabled>Select Camera</option>';
+
+        if (!crossroad_id) {
+            return;
+        }
+
+        var ajax = new XMLHttpRequest();
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState === 4) {
+                if (ajax.status === 200) {
+                    try {
+                        var response = JSON.parse(ajax.responseText);
+
+                        if (response.length === 0) {
+                            var opt = document.createElement("option");
+                            opt.text = "No Active Cameras Available";
+                            opt.disabled = true;
+                            cameraDropdown.add(opt);
+                        } else {
+                            response.forEach(function (camera) {
+                                var opt = document.createElement("option");
+                                opt.value = camera.camera_id;
+                                opt.text = camera.camera_name;
+                                cameraDropdown.add(opt);
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error parsing JSON response:", error);
+                    }
+                } else {
+                    console.error("Error fetching cameras: HTTP", ajax.status);
+                }
+            }
+        };
+
+        ajax.open("GET", "/admin/get_cameras_with_filter?crossroad_id=" + crossroad_id, true);
+        ajax.send();
+    }
+
+    function loadInfoData(video_id) {
+        let ajax = new XMLHttpRequest();
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState === 4) {
+                if (ajax.status === 200) {
+                    try {
+                        let responseData = JSON.parse(ajax.responseText);
+                        console.log("Response received:", responseData);
+
+                        if (responseData.error) {
+                            alert("Error: " + responseData.error);
+                            return;
+                        }
+
+                        const videoElement = document.getElementById("infoModalVideo");
+                        videoElement.src = responseData.video_path;
+
+                        videoElement.addEventListener('loadedmetadata', function () {
+
+                            const durationInSeconds = videoElement.duration;
+
+                            const hours = Math.floor(durationInSeconds / 3600);
+                            const minutes = Math.floor((durationInSeconds % 3600) / 60);
+                            const seconds = Math.floor(durationInSeconds % 60);
+
+                            let timeFormat = "";
+                            if (hours > 0) {
+                                timeFormat = hours + ":" +
+                                    (minutes < 10 ? '0' : '') + minutes + ":" +
+                                    (seconds < 10 ? '0' : '') + seconds;
+                            } else {
+                                timeFormat = minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+                            }
+
+                            let descriptiveFormat = "";
+                            if (hours > 0) {
+                                descriptiveFormat += hours + (hours === 1 ? " hour " : " hours ");
+                            }
+                            if (minutes > 0 || hours > 0) {
+                                descriptiveFormat += minutes + (minutes === 1 ? " minute " : " minutes ");
+                            }
+                            descriptiveFormat += seconds + (seconds === 1 ? " second" : " seconds");
+
+                            document.getElementById("infoModalVideoLength").innerText = timeFormat + " (" + descriptiveFormat + ")";
+
+                            {#document.getElementById("infoModalVideoLength").innerText = timeFormat;#}
+                        });
+
+                        document.getElementById("infoModalArea").innerText = responseData.area_name;
+                        document.getElementById("infoModalCrossroad").innerText = responseData.crossroad_name;
+                        document.getElementById("infoModalCamera").innerText = responseData.camera_name;
+                        document.getElementById("infoModalFileName").innerText = responseData.video_name;
+                        document.getElementById("infoModalFileType").innerText = responseData.file_type;
+
+                    } catch (e) {
+                        alert("Error parsing response: " + e.message);
+                        console.error("Error details:", e);
+                    }
+                } else {
+                    alert("Failed to load data. Server responded with: " + ajax.status);
+                }
+            }
+        };
+
+        ajax.open("GET", "/admin/video_info?video_id=" + encodeURIComponent(video_id), true);
+        ajax.send();
+    }
+
+    function loadResultInfoData(video_id) {
+        console.log("Fetching video data for ID:", video_id); // Debugging log
+
+        let ajax = new XMLHttpRequest();
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState === 4) {
+                if (ajax.status === 200) {
+                    try {
+                        let responseData = JSON.parse(ajax.responseText);
+                        console.log("Parsed response:", responseData); // Debugging log
+
+                        if (responseData.error) {
+                            alert("Error: " + responseData.error);
+                            return;
+                        }
+
+                        // Set video sources
+                        // Get video element
+                        const videoElement1 = document.getElementById("resultModalOgVideo");
+                        videoElement1.src = responseData.video_path;
+                        videoElement1.load()
+                        const videoElement = document.getElementById("resultModalVideo");
+                        videoElement.src = responseData.output_video_path;
+                        videoElement.load();
+
+                        // Wait for metadata to load before setting duration
+                        videoElement1.onloadedmetadata = function () {
+                            const durationInSeconds = videoElement1.duration;
+
+                            const hours = Math.floor(durationInSeconds / 3600);
+                            const minutes = Math.floor((durationInSeconds % 3600) / 60);
+                            const seconds = Math.floor(durationInSeconds % 60);
+
+                            let timeFormat = (hours > 0 ? hours + ":" : "") +
+                                (minutes < 10 ? '0' : '') + minutes + ":" +
+                                (seconds < 10 ? '0' : '') + seconds;
+
+                            let descriptiveFormat = "";
+                            if (hours > 0) descriptiveFormat += hours + (hours === 1 ? " hour " : " hours ");
+                            if (minutes > 0 || hours > 0) descriptiveFormat += minutes + (minutes === 1 ? " minute " : " minutes ");
+                            descriptiveFormat += seconds + (seconds === 1 ? " second" : " seconds");
+
+                            document.getElementById("resultModalVideoLength").innerText = timeFormat + " (" + descriptiveFormat + ")";
+                        };
+
+                        // Helper to safely set text
+                        const setText = (id, value) => {
+                            const el = document.getElementById(id);
+                            if (el) el.innerText = value;
+                        };
+
+                        setText("resultModalArea", responseData.area_name);
+                        setText("resultModalCrossroad", responseData.crossroad_name);
+                        setText("resultModalCamera", responseData.camera_name);
+                        setText("resultModalFileName", responseData.video_name);
+                        setText("resultModalFileType", responseData.file_type);
+                        setText("infoCarCount", responseData.car_count);
+                        setText("infoBusCount", responseData.bus_count);
+                        setText("infoMotorcycleCount", responseData.motorcycle_count);
+                        setText("infoTruckCount", responseData.truck_count);
+                        setText("infoBicycleCount", responseData.bicycle_count);
+
+                        // Show the modal with slight delay
+                        setTimeout(() => {
+                            $("#showVideoResult").modal("show");
+                        }, 200);
+
+                    } catch (e) {
+                        alert("Error parsing response: " + e.message);
+                        console.error("Parsing error details:", e);
+                    }
+                } else {
+                    alert("Failed to load data. Server responded with status: " + ajax.status);
+                }
+            }
+        };
+
+        ajax.open("GET", "/admin/video_info?video_id=" + encodeURIComponent(video_id), true);
+        ajax.send();
+    }
+
+
+    {#function loadResultInfoData(video_id) {#}
+    {#    console.log("Fetching video data for ID:", video_id); // Debugging log#}
+    {##}
+    {#    let ajax = new XMLHttpRequest();#}
+    {#    ajax.onreadystatechange = function () {#}
+    {#        if (ajax.readyState === 4) {#}
+    {#            if (ajax.status === 200) {#}
+    {#                try {#}
+    {#                    let responseData = JSON.parse(ajax.responseText);#}
+    {#                    console.log("Parsed response:", responseData); // Debugging log#}
+    {##}
+    {#                    if (responseData.error) {#}
+    {#                        alert("Error: " + responseData.error);#}
+    {#                        return;#}
+    {#                    }#}
+    {##}
+    {#                    // Get video element#}
+    {#                    const videoElement1 = document.getElementById("infoModalVideo");#}
+    {#                    videoElement1.src = responseData.video_path;#}
+    {#                    const videoElement = document.getElementById("resultModalVideo");#}
+    {#                    videoElement.src = responseData.output_video_path;#}
+    {#                    videoElement.load();#}
+    {##}
+    {#                    // Wait for metadata to load before setting duration#}
+    {#                    videoElement1.onloadedmetadata = function () {#}
+    {#                        const durationInSeconds = videoElement1.duration;#}
+    {##}
+    {#                        const hours = Math.floor(durationInSeconds / 3600);#}
+    {#                        const minutes = Math.floor((durationInSeconds % 3600) / 60);#}
+    {#                        const seconds = Math.floor(durationInSeconds % 60);#}
+    {##}
+    {#                        let timeFormat = (hours > 0 ? hours + ":" : "") +#}
+    {#                            (minutes < 10 ? '0' : '') + minutes + ":" +#}
+    {#                            (seconds < 10 ? '0' : '') + seconds;#}
+    {##}
+    {#                        let descriptiveFormat = "";#}
+    {#                        if (hours > 0) descriptiveFormat += hours + (hours === 1 ? " hour " : " hours ");#}
+    {#                        if (minutes > 0 || hours > 0) descriptiveFormat += minutes + (minutes === 1 ? " minute " : " minutes ");#}
+    {#                        descriptiveFormat += seconds + (seconds === 1 ? " second" : " seconds");#}
+    {##}
+    {#                        document.getElementById("resultModalVideoLength").innerText = timeFormat + " (" + descriptiveFormat + ")";#}
+    {#                    };#}
+    {##}
+    {#                    document.getElementById("resultModalArea").innerText = responseData.area_name || "N/A";#}
+    {#                    document.getElementById("resultModalCrossroad").innerText = responseData.crossroad_name || "N/A";#}
+    {#                    document.getElementById("resultModalCamera").innerText = responseData.camera_name || "N/A";#}
+    {#                    document.getElementById("resultModalFileName").innerText = responseData.video_name || "N/A";#}
+    {#                    document.getElementById("resultModalFileType").innerText = responseData.file_type || "N/A";#}
+    {##}
+    {#                    document.getElementById("infoCarCount").innerText = responseData.car_count || "N/A";#}
+    {#                    document.getElementById("infoBusCount").innerText = responseData.bus_count|| "N/A";#}
+    {#                    document.getElementById("infoMotorcycleCount").innerText = responseData.motorcycle_count|| "N/A";#}
+    {#                    document.getElementById("infoTruckCount").innerText = responseData.truck_count|| "N/A";#}
+    {#                    document.getElementById("infoBicycleCount").innerText = responseData.bicycle_count|| "N/A";#}
+    {##}
+    {##}
+    {#                    // Open modal with a slight delay to ensure data is updated first#}
+    {#                    setTimeout(() => {#}
+    {#                        $("#infoModal").modal("show");#}
+    {#                     }, 200);#}
+    {##}
+    {#                } catch (e) {#}
+    {#                    alert("Error parsing response: " + e.message);#}
+    {#                    console.error("Parsing error details:", e);#}
+    {#                }#}
+    {#            } else {#}
+    {#                alert("Failed to load data. Server responded with status: " + ajax.status);#}
+    {#            }#}
+    {#        }#}
+    {#    };#}
+    {##}
+    {#    ajax.open("GET", "/admin/video_info?video_id=" + encodeURIComponent(video_id), true);#}
+    {#    ajax.send();#}
+    {# }#}
+</script>
+
+<!-- End custom js for this page-->
+</body>
+
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>DriveTracker</title>
+    <!-- base:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <link rel="stylesheet" href="../../static/adminResources/css/jquery.toast.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/dataTables.bootstrap4.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/style.css">
+    <!-- endinject -->
+    <link rel="shortcut icon" href="../../static/adminResources/image/favicon.ico"/>
+
+    <script type="text/javascript">
+        function loadState() {
+            var area_id = document.getElementById("area_id");
+            var crossroad_id = document.getElementById("crossroad_id");
+            crossroad_id.innerHTML = "";
+            crossroad_id.innerHTML = '<option selected disabled> Select Crossroad </option>';
+
+            var ajax = new XMLHttpRequest();
+            ajax.onreadystatechange = function () {
+                if (ajax.readyState === 4) {
+                    var jsn = JSON.parse(ajax.responseText);
+
+                    for (var i = 0; i < jsn.length; i++) {
+                        var opt = document.createElement("option");
+                        opt.value = jsn[i].crossroad_id;
+                        opt.text = jsn[i].crossroad_name;
+                        crossroad_id.options.add(opt);
+                    }
+                }
+            };
+            ajax.open("GET", "/admin/load_ajax_crossroad?area_id=" + area_id.value, true);
+            ajax.send();
+        }
+    </script>
+</head>
+
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+
+
+    {% include 'admin/header.html' %}
+
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+
+        <!-- partial:partials/_sidebar.html -->
+
+        {% include 'admin/menu.html' %}
+
+
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="card">
+                    <div class="card-header bg-gradient-custom d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 text-white ">
+                            Camera Details
+                        </h4>
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-toggle="modal"
+                                data-target="#addCamera"
+                                data-whatever="@mdo">
+                            Add Camera
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table id="order-listing" class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Camera Name</th>
+                                            <th>CrossRoad Name</th>
+                                            <th>Area Name</th>
+                                            <th>Camera Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for row in camera_dao_list %}
+                                            <tr>
+                                                <td>{{ row[2]['camera_name'] }}</td>
+                                                <td>{{ row[1]['crossroad_name'] }}</td>
+                                                <td>{{ row[0]['area_name'] }}</td>
+                                                <td>
+                                                    {% if (row[2]['camera_status'] == 'Active') %}
+                                                        <span class="badge badge-success">Active</span>
+                                                    {% elif (row[2]['camera_status'] == 'Deactivate') %}
+                                                        <span class="badge badge-danger">Deactivate</span>
+                                                    {% endif %}
+
+                                                </td>
+                                                <td>
+                                                    <a href="#"
+                                                       onclick="loadCameraInfo('{{ row[2]['camera_id'] }}')"
+                                                       data-bs-toggle="modal"
+                                                       data-bs-target="#editCamera">
+                                                        <i class="mdi mdi-pencil lead"
+                                                           style="max-width: 380px; cursor: pointer"
+                                                           data-toggle="tooltip"
+                                                           data-placement="left"
+                                                           title="Edit">
+                                                        </i>
+                                                    </a>
+
+                                                    <a href="javascript:void(0);"
+                                                       class="style=max-width: 380px; cursor: pointer"
+                                                       data-toggle="tooltip"
+                                                       data-placement="right"
+                                                       title="Delete"
+                                                       onclick="showSwal('warning-message-and-cancel', '{{ row[2]['camera_id'] }}')">
+                                                        <i class="mdi mdi-delete lead text-danger mr-3"></i>
+                                                    </a>
+
+<!--                                                    {#                                                    <a href="/admin/delete_camera?camera_id={{ row[2]['camera_id'] }}"#}-->
+<!--                                                    {#                                                       class="style=max-width: 380px; cursor: pointer"#}-->
+<!--                                                    {#                                                       data-toggle="tooltip"#}-->
+<!--                                                    {#                                                       data-placement="right"#}-->
+<!--                                                    {#                                                       title=""#}-->
+<!--                                                    {#                                                       data-original-title="Delete">#}-->
+<!--                                                    {#                                                        <i class="mdi mdi-delete lead text-danger mr-3"></i>#}-->
+<!--                                                    {#                                                    </a>#}-->
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+
+            {% include 'admin/footer.html' %}
+
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+    {##############################################################}
+    {####################### Add Camera Modal #######################}
+    {##############################################################}
+
+    <div class="modal bd-example-modal-lg fade" id="addCamera" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <form class="cmxform" id="addCameraForm" method="post" action="/admin/insert_camera">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Add Camera</h5>
+                        <button type="button" onclick="resetForm()" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <fieldset>
+                            <div class="row">
+                                <div class="form-group col-4">
+                                    <label for="area_id">Select Area</label>
+                                    <select class="form-control" id="area_id" name="area_id" onchange="loadState()">
+                                        <option selected disabled value="0">
+                                            Select Area
+                                        </option>
+
+                                        {% for area in area_vo_list %}
+                                            <option value="{{ area['area_id'] }}">{{ area['area_name'] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group  col-4">
+                                    <label for="crossroad_id">
+                                        Select Crossroad
+                                    </label>
+                                    <select class="form-control" id="crossroad_id" name="crossroad_id"></select>
+                                </div>
+
+                                <div class="form-group col-4">
+                                    <label for="cameraname">
+                                        Camera Name
+                                    </label>
+                                    <input id="cameraname" class="form-control" name="camera_name" minlength="2" type="text">
+                                </div>
+
+                                <div class="form-group col-12">
+                                    <label for="rtsplink"> RTSP Link </label>
+                                    <input id="rtsplink" class="form-control" name="RTSP_link" minlength="2" type="text">
+                                </div>
+
+{#<!--                                {#                                <div class="form-group col-6">-->#}
+{#<!--                                {#                                    <label for="statusToggle">Camera Status</label>-->#}
+{#<!--                                {#                                    <div class="d-flex py-2">-->#}
+{#<!--                                {#                                        <span class="text-muted status-label" id="deactivateLabel">Deactivate</span>-->#}
+{#<!--                                {#                                        <label class="toggle-switch mx-5">-->#}
+{#<!--                                {#                                            <input form-control type="checkbox" id="statusToggle" name="status" data-camera-id="{{ camera_id }}">-->#}
+{#<!--                                {#                                            <span class="toggle-slider round"></span>-->#}
+{#<!--                                {#                                        </label>-->#}
+{#<!--                                {#                                        <span class="text-muted status-label" id="activeLabel">Active</span>-->#}
+{#<!--                                {#                                    </div>-->#}
+{#<!--                                {#                                </div>-->#}
+
+
+                                <div class="form-group col-12">
+                                    <div class="row">
+                                        <label class="col-sm-3 col-form-label" for="status">
+                                            Camera Status
+                                        </label>
+
+                                        <div class="col-sm-4">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input type="radio" class="form-check-input" name="status" id="cameraRadios1" value="Active" checked="">
+                                                    Active
+                                                    <i class="input-helper"></i>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-5">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input type="radio" class="form-check-input" name="status" id="cameraRadios2" value="Deactivate">
+                                                    Deactivate
+                                                    <i class="input-helper"></i>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <input class="btn btn-primary" type="submit" value="Add">
+                        <button type="button" class="btn btn-light" onclick="resetForm()" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {##############################################################}
+
+    {##############################################################}
+    {###################### Edit Camera Modal ######################}
+    {##############################################################}
+
+    <div class="modal bd-example-modal-lg fade" id="editCamera" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <form class="cmxform" id="commentForm" method="post" action="/admin/update_camera">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Edit Camera</h5>
+                        <button type="button" onclick="resetForm()" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" name="camera_id" id="camera_id">
+
+                        <fieldset>
+                            <div class="row">
+                                <!-- Select Area -->
+                                <div class="form-group col-6">
+                                    <label for="area_id">Select Area</label>
+                                    <select class="form-control" id="area_name" name="area_id">
+                                        <option value="">Select Area</option>
+                                        {% for area in area_vo_list %}
+                                            <option value="{{ area.area_id }}">{{ area.area_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Select Crossroad -->
+                                <div class="form-group col-6">
+                                    <label for="crossroad_id">Select Crossroad</label>
+                                    <select class="form-control" id="crossroad_name" name="crossroad_id">
+                                        <option value="">Select Crossroad</option>
+                                        {% for crossroad in crossroad_vo_list %}
+                                            <option value="{{ crossroad.crossroad_id }}">{{ crossroad.crossroad_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Camera Name -->
+                                <div class="form-group col-12">
+                                    <label for="camera_name">Camera Name</label>
+                                    <input id="camera_name" class="form-control" name="camera_name" minlength="2" type="text">
+                                </div>
+
+                                <!-- RTSP Link -->
+                                <div class="form-group col-12">
+                                    <label for="rtsp_link">RTSP Link</label>
+                                    <input id="rtsp_link" class="form-control" name="RTSP_link" minlength="2" type="text">
+                                </div>
+
+                                <!-- Camera Status -->
+                                <div class="form-group col-12 row">
+                                    <label class="col-sm-3 col-form-label">Camera Status</label>
+                                    <div class="col-sm-4">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="status" id="status_active" value="Active">
+                                                Active
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="status" id="status_deactivate" value="Deactivate">
+                                                Deactivate
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <input class="btn btn-primary" type="submit" value="Update">
+                        <button type="button" class="btn btn-light" onclick="resetForm()" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    {##############################################################}
+
+</div>
+<!-- container-scroller -->
+
+
+<!-- base:js -->
+<script src="../../static/adminResources/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- inject:js -->
+<script src="../../static/adminResources/js/off-canvas.js"></script>
+<script src="../../static/adminResources/js/hoverable-collapse.js"></script>
+<script src="../../static/adminResources/js/template.js"></script>
+<script src="../../static/adminResources/js/settings.js"></script>
+<script src="../../static/adminResources/js/todolist.js"></script>
+<!-- endinject -->
+<!-- plugin js for this page -->
+<script src="../../static/adminResources/js/sweetalert.min.js"></script>
+<script src="../../static/adminResources/js/jquery.dataTables.js"></script>
+<script src="../../static/adminResources/js/jquery.validate.min.js"></script>
+<script src="../../static/adminResources/js/data-table.js"></script>
+<script src="../../static/adminResources/js/dataTables.bootstrap4.js"></script>
+<script src="../../static/adminResources/js/jquery.toast.min.js"></script>
+<!-- End plugin js for this page -->
+<script src="../../static/adminResources/js/tooltips.js"></script>
+<script src="../../static/adminResources/js/popover.js"></script>
+<!-- Custom js for this page-->
+<script src="../../static/adminResources/js/alerts.js"></script>
+<script src="../../static/adminResources/js/form-validation.js"></script>
+
+<script>
+
+    function showSwal(type, camera_id) {
+        if (type === 'warning-message-and-cancel') {
+            swal({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: "Cancel",
+                        value: null,
+                        visible: true,
+                        className: "btn btn-danger",
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "OK",
+                        value: true,
+                        visible: true,
+                        className: "btn btn-primary",
+                        closeModal: true
+                    }
+                }
+            }).then((result) => {
+                if (result) {
+                    window.location.href = "/admin/delete_camera?camera_id=" + camera_id;
+                }
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        $('#addCameraForm').validate({
+            rules: {
+                area_id: {
+                    required: true
+                },
+                crossroad_id: {
+                    required: true
+                },
+                camera_name: {
+                    required: true
+                }
+                {#cameraRadios1: {#}
+                {#    required: true#}
+                {# },#}
+                {#cameraRadios2: {#}
+                {#    required: true#}
+                {# }#}
+            },
+            messages: {
+                area_id: {
+                    required: "Please select an area",
+                },
+                crossroad_id: {
+                    required: "Please select an area crossroad",
+                },
+                camera_name: {
+                    required: "Please, Enter Camera Name"
+                },
+            }
+        });
+    });
+
+    function resetForm() {
+        $("#addCameraForm").validate().resetForm();
+        $("#addCameraForm").trigger("reset");
+    }
+
+    function loadCameraInfo(camera_id) {
+        console.log(" API Call: /admin/get_camera_details?camera_id=" + camera_id); // Debugging
+
+        let ajax = new XMLHttpRequest();
+
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState === 4) {
+                console.log("📡 API Response Received:", ajax.status, ajax.responseText);
+
+                if (ajax.status === 200) {
+                    try {
+                        let responseData = JSON.parse(ajax.responseText);
+
+
+                        let camera = responseData.data;
+
+                        document.getElementById("camera_id").value = camera.camera_id;
+                        document.getElementById("camera_name").value = camera.camera_name;
+                        document.getElementById("rtsp_link").value = camera.RTSP_link;
+                        document.getElementById("area_name").value = camera.camera_area_id;
+                        document.getElementById("crossroad_name").value = camera.camera_crossroad_id;
+
+                        document.getElementById("status_active").checked = camera.camera_status === "Active";
+                        document.getElementById("status_deactivate").checked = camera.camera_status === "Deactivate";
+
+                        let modalElement = document.getElementById("editCamera");
+                        if (modalElement) {
+                            let modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                        } else {
+                            console.error("Error: Modal element not found!");
+                        }
+
+                    } catch (e) {
+                        alert("Error parsing response: " + e.message);
+                        console.error("Parsing Error:", e);
+                    }
+                } else {
+                    alert("Failed to load data. Server responded with: " + ajax.status);
+                    console.error(" AJAX Error:", ajax.responseText);
+                }
+            }
+        };
+
+        ajax.open("GET", "/admin/get_camera_details?camera_id=" + encodeURIComponent(camera_id), true);
+        ajax.send();
+    }
+
+</script>
+
+</body>
+</html>
+

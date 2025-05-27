@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>DriveTracker</title>
+    <!-- base:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+
+    <link rel="stylesheet" href="../../static/adminResources/css/jquery.toast.min.css">
+    <link rel="stylesheet" href="../../static/adminResources/css/dataTables.bootstrap4.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../static/adminResources/css/style.css">
+    <!-- endinject -->
+    <link rel="shortcut icon" href="../../static/adminResources/image/favicon.ico"/>
+</head>
+
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+
+
+    {% include 'admin/header.html' %}
+
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+
+        <!-- partial:partials/_sidebar.html -->
+
+        {% include 'admin/menu.html' %}
+
+
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="card">
+                    <div class="card-header bg-gradient-custom d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 text-white">
+                            Area Details
+                        </h4>
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-toggle="modal"
+                                data-target="#addArea"
+                                data-whatever="@mdo">
+                            Add Area
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table id="order-listing" class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Area Name</th>
+                                            <th>Area Description</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for row in area_vo_list %}
+                                            <tr id="row_1{{ row['area_id'] }}">
+                                                <td>
+                                                    {{ row['area_name'] }}
+                                                </td>
+
+                                                <td>
+                                                    <p class="text-truncate"
+                                                       style="max-width: 400px; cursor: pointer"
+                                                       data-toggle="popover" data-trigger="hover"
+                                                       title="Area Description"
+                                                       data-content="{{ row['area_description'] }}"
+                                                       data-placement="left"
+                                                       data-custom-class="popover-info">
+                                                        {{ row['area_description'] }}
+                                                    </p>
+                                                </td>
+
+                                                <td>
+                                                    <a href="#" onclick="loadAreaInfo({{ row['area_id'] }})" data-toggle="modal" data-target="#editArea">
+                                                        <i class="mdi mdi-pencil lead"
+                                                           style="max-width: 380px; cursor: pointer"
+                                                           data-toggle="tooltip"
+                                                           data-placement="left"
+                                                           title="Edit"></i>
+                                                    </a>
+
+                                                    <a href="javascript:void(0);"
+                                                       style="max-width: 380px; cursor: pointer;"
+                                                       data-toggle="tooltip"
+                                                       data-placement="right"
+                                                       title="Delete"
+                                                       onclick="showSwal('warning-message-and-cancel', '{{ row['area_id'] }}')">
+                                                        <i class="mdi mdi-delete lead text-danger mr-3"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+
+            {% include 'admin/footer.html' %}
+
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+
+    {##############################################################}
+    {####################### Add Area Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade" id="addArea" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form class="cmxform" id="addAreaForm" method="post" action="/admin/insert_area">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Add Area</h5>
+                        <button type="button" onclick="resetForm()" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="aname">Area Name</label>
+                                <input type="text" id="aname" class="form-control" name="area_name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="acomment">Area Description</label>
+                                <textarea id="acomment" class="form-control" name="area_description"></textarea>
+                            </div>
+
+                        </fieldset>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        {#                        <button class="btn btn-primary" type="submit" value="Add">Add</button>#}
+                        <button class="btn btn-primary" type="submit" value="Add" onclick="showSuccessToastAddData()">Add</button>
+                        <button type="button" class="btn btn-light" onclick="resetForm()" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    {##############################################################}
+
+    {##############################################################}
+    {####################### Edit Area Modal #######################}
+    {##############################################################}
+
+    <div class="modal fade" id="editArea" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form class="cmxform" id="areaForm" method="post" action="/admin/update_area">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Edit Area</h5>
+                        <button type="button" onclick="resetForm()" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="area_id" name="area_id"> <!-- Hidden input for ID -->
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="area_name">Area Name</label>
+                                <input id="area_name" class="form-control" name="area_name" minlength="2" type="text">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="area_description">Area Description</label>
+                                <textarea id="area_description" class="form-control" name="area_description"></textarea>
+                            </div>
+                        </fieldset>
+
+                    </div>
+                    <div class="modal-footer">
+                        {#                        <button type="submit" class="btn btn-primary" onclick="showSuccessToastEditata()" value="Update"></button>#}
+                        <input class="btn btn-primary" type="submit" onclick="showSuccessToastEditata()" value="Update">
+                        <button type="button" class="btn btn-light" onclick="resetForm()" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    {##############################################################}
+
+    <!-- container-scroller -->
+</div>
+
+
+<!-- base:js -->
+<script src="../../static/adminResources/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- inject:js -->
+<script src="../../static/adminResources/js/off-canvas.js"></script>
+<script src="../../static/adminResources/js/hoverable-collapse.js"></script>
+<script src="../../static/adminResources/js/template.js"></script>
+<script src="../../static/adminResources/js/settings.js"></script>
+<script src="../../static/adminResources/js/todolist.js"></script>
+
+<!-- endinject -->
+<!-- plugin js for this page -->
+<script src="../../static/adminResources/js/sweetalert.min.js"></script>
+<script src="../../static/adminResources/js/jquery.dataTables.js"></script>
+<script src="../../static/adminResources/js/jquery.validate.min.js"></script>
+<script src="../../static/adminResources/js/dataTables.bootstrap4.js"></script>
+<script src="../../static/adminResources/js/jquery.toast.min.js"></script>
+<!-- End plugin js for this page -->
+<script src="../../static/adminResources/js/tooltips.js"></script>
+<script src="../../static/adminResources/js/popover.js"></script>
+{#<script src="../../static/adminResources/js/toastDemo.js"></script>#}
+<!-- Custom js for this page-->
+<script src="../../static/adminResources/js/data-table.js"></script>
+<script src="../../static/adminResources/js/alerts.js"></script>
+<script src="../../static/adminResources/js/form-validation.js"></script>
+
+<script>
+
+    {#$(document).ready(function () {#}
+    {#    $("#addAreaForm").submit(function (event) {#}
+    {#        event.preventDefault(); // Prevent the default form submission#}
+    {##}
+    {#        $.ajax({#}
+    {#            type: "POST",#}
+    {#            url: $(this).attr("action"),#}
+    {#            data: $(this).serialize(),#}
+    {#            success: function (response) {#}
+    {#                if (response.success) {#}
+    {#                    // Hide modal#}
+    {#                    $("#addArea").modal("hide");#}
+    {##}
+    {#                    // Reset form#}
+    {#                    $("#addAreaForm")[0].reset();#}
+    {##}
+    {#                    // Show success toast#}
+    {##}
+    {#                    // Optionally, refresh the data on the view page#}
+    {#                    location.reload();#}
+    {#                }#}
+    {#            },#}
+    {#        });#}
+    {#        showSuccessToastAddData();#}
+    {#    });#}
+    {# });#}
+
+    function showSwal(type, areaId) {
+        if (type === 'warning-message-and-cancel') {
+            swal({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: "Cancel",
+                        value: null,
+                        visible: true,
+                        className: "btn btn-danger",
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "OK",
+                        value: true,
+                        visible: true,
+                        className: "btn btn-primary",
+                        closeModal: true
+                    }
+                }
+            }).then((result) => {
+                if (result) {
+                    window.location.href = "/admin/delete_area?area_id=" + areaId;
+                }
+            });
+        }
+    }
+
+
+    {#function showSuccessToastAddData() {#}
+    {#    $.toast({#}
+    {#        heading: 'Success',#}
+    {#        text: 'The area has been successfully!',#}
+    {#        showHideTransition: 'slide',#}
+    {#        icon: 'success',#}
+    {#        loaderBg: '#f96868',#}
+    {#        position: 'top-right'#}
+    {#    });#}
+    {# }#}
+
+    $(document).ready(function () {
+        $('#addAreaForm').validate({
+            rules: {
+                area_name: {
+                    required: true
+                },
+                area_description: {
+                    required: true
+                }
+            },
+            messages: {
+                area_name: {
+                    required: "Please, Enter Area Name",
+                },
+                area_description: {
+                    required: "Please enter a description"
+                }
+            }
+        });
+    });
+
+
+    function resetForm() {
+        $("#addAreaForm").validate().resetForm();
+        $("#addAreaForm").trigger("reset");
+    }
+
+    function loadAreaInfo(area_id) {
+        let ajax = new XMLHttpRequest();
+        console.log("Sending request for area_id:", area_id);
+
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState === 4) {
+                console.log("Request completed with status:", ajax.status);
+
+                if (ajax.status === 200) {
+                    try {
+                        console.log("Raw response:", ajax.responseText);
+                        let responseData = JSON.parse(ajax.responseText);
+                        console.log("Parsed response:", responseData);
+
+                        if (responseData.error) {
+                            alert("Error: " + responseData.error);
+                            return;
+                        }
+
+
+                        document.getElementById("area_id").value = responseData.area_id;
+                        document.getElementById("area_name").value = responseData.area_name;
+                        document.getElementById("area_description").value = responseData.area_description;
+
+                        console.log("Data updated in modal");
+
+                    } catch (e) {
+                        console.error("Error parsing response:", e.message);
+                        alert("Error parsing response: " + e.message);
+                    }
+                } else {
+                    console.error("Failed request. Server responded with:", ajax.status);
+                    alert("Failed to load data. Server responded with: " + ajax.status);
+                }
+            }
+        };
+
+        ajax.open("GET", "/admin/get_area_info?area_id=" + encodeURIComponent(area_id), true);
+        ajax.send();
+    }
+
+
+</script>
+</body>
+
+</html>
